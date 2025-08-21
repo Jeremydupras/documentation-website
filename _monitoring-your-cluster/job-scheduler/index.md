@@ -137,6 +137,7 @@ The Job Scheduler plugin supports the following APIs used to monitor the jobs ru
 
 - [Jobs API]({{site.url}}{{site.baseurl}}/monitoring-your-cluster/job-scheduler/jobs/)
 - [Locks API]({{site.url}}{{site.baseurl}}/monitoring-your-cluster/job-scheduler/locks/)
+- [History API]({{site.url}}{{site.baseurl}}/monitoring-your-cluster/job-scheduler/history/)
 
 ## Job Scheduler cluster settings
 
