@@ -84,6 +84,25 @@ If you already created the snapshot outside the workflow, use `workflow configur
 snapshotConfig.snapshotNameConfig.externallyManagedSnapshotName
 ```
 
+## Snapshot repository backend (Amazon S3 or Google Cloud Storage)
+
+For Elasticsearch and OpenSearch sources, the snapshot repository backend is determined by the URI scheme of the repository's `repoPathUri`, not by a separate setting:
+
+- `s3://BUCKET_NAME/OPTIONAL_PATH` uses Amazon S3.
+- `gs://BUCKET_NAME/OPTIONAL_PATH` uses Google Cloud Storage (GCS).
+
+Use `workflow configure sample --load` to confirm the exact placement of `repoPathUri` for your installed version. The repository bucket must already exist and be reachable from the source cluster.
+
+The following fields apply only to `s3://` repositories and are ignored for `gs://`:
+
+- `awsRegion` --- the AWS Region of the S3 bucket (required for S3).
+- `s3RoleArn` --- an IAM role the source cluster assumes to read and write snapshots.
+
+To use a `gs://` repository, the **source cluster** must have the [`repository-gcs`](https://opensearch.org/docs/latest/tuning-your-cluster/availability-and-recovery/snapshots/snapshot-restore/#registering-a-gcs-repository) plugin installed with a configured client. GCS authentication is provided to the source cluster out of band---for example, a service-account key loaded into the cluster keystore, or Workload Identity on GKE---not through the Migration Assistant configuration.
+
+{: .note }
+> GCS snapshot repositories apply to Elasticsearch and OpenSearch sources. Apache Solr sources use Solr's own Amazon S3 backup repository; see the [Solr backfill guide]({{site.url}}{{site.baseurl}}/migration-assistant/solr-migration/solr-backfill-guide/).
+
 ## Run and monitor the workflow
 
 To submit the workflow and monitor progress, run the following commands:
