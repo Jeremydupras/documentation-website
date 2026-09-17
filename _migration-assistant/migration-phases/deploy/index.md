@@ -18,12 +18,13 @@ Migration Assistant always runs on Kubernetes. The primary decision is how much 
 
 ## Deployment types
 
-The following table compares the two deployment types.
+The following table compares the deployment types.
 
 | Type | Best when | Included |
 |:-----|:----------|:-------------|
-| [Deploy on Kubernetes]({{site.url}}{{site.baseurl}}/migration-assistant/migration-phases/deploy/deploying-to-kubernetes/) | You already operate a Kubernetes platform, you are not on AWS, or you are evaluating locally | The core Migration Assistant engine and workflow model, with you supplying the platform integrations |
+| [Deploy on Kubernetes]({{site.url}}{{site.baseurl}}/migration-assistant/migration-phases/deploy/deploying-to-kubernetes/) | You already operate a Kubernetes platform, you are not on AWS or Google Cloud, or you are evaluating locally | The core Migration Assistant engine and workflow model, with you supplying the platform integrations |
 | [Deploy on Amazon Elastic Kubernetes Service (EKS)]({{site.url}}{{site.baseurl}}/migration-assistant/migration-phases/deploy/deploying-to-eks/) | You are on AWS and want the recommended production path | The same engine plus AWS bootstrap automation, pod identity, image mirroring, snapshot helpers, and CloudWatch integration |
+| [Deploy on Google Kubernetes Engine (GKE)]({{site.url}}{{site.baseurl}}/migration-assistant/migration-phases/deploy/deploying-to-gke/) | You are on Google Cloud | The same engine plus a Terraform module that provisions GKE, Workload Identity, a Cloud Storage snapshot bucket, and Cloud Logging |
 
 Both paths install the same Migration Assistant Helm chart. The difference is how much of the surrounding environment is prepared for you.
 
