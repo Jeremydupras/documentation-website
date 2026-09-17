@@ -57,7 +57,10 @@ The `console` CLI groups operations by component. The `workflow` CLI orchestrate
 <tr><td><code>console clusters cat-indices [--refresh] [--cluster source|target|proxy]</code></td><td>Lists indexes on one or both clusters.</td></tr>
 <tr><td><code>console clusters curl source /_cat/indices?v</code></td><td>Issues a direct API request against the named cluster (path is positional).</td></tr>
 <tr><td><code>console clusters curl target /_search -X POST --json '{"query":{"match_all":{}}}'</code></td><td>Sends a <code>POST</code> request with a JSON body.</td></tr>
-<tr><td><code>console clusters clear-indexes --cluster target --acknowledge-risk</code></td><td><strong>Destructive</strong>. Deletes all indexes on the named cluster.</td></tr>
+<tr><td><code>console clusters clear-indices --cluster target --acknowledge-risk</code></td><td><strong>Destructive</strong>. Deletes all indexes on the named cluster.</td></tr>
+<tr><td><code>console clusters generate-data --cluster target --index-name test [--num-docs N | --target-size-mb N]</code></td><td>Populates an index with synthetic documents for pilots and validation. Size the load with <code>--num-docs</code> or <code>--target-size-mb</code>; tune with <code>--doc-size-bytes</code>, <code>--batch-size</code>, and <code>--num-tenants</code>.</td></tr>
+<tr><td><code>console clusters run-test-benchmarks --cluster target</code></td><td>Runs a set of OpenSearch Benchmark workloads against the cluster to validate ingest and query behavior.</td></tr>
+<tr><td><code>console clusters run-aoss-test-benchmarks --source ...</code></td><td>Benchmark variant for Amazon OpenSearch Serverless (AOSS) collections, which do not support the same APIs as a managed domain.</td></tr>
 </tbody>
 </table>
 
@@ -66,7 +69,18 @@ The `console` CLI groups operations by component. The `workflow` CLI orchestrate
 | Group | Commands |
 |:------|:---------|
 | `console metrics` | `list`, `get-data` |
-| `console kafka` | `create-topic`, `list-topics`, `delete-topic`, `describe-consumer-group`, `list-consumer-groups`, `describe-topic-records` |
+| `console kafka` | `create-topic`, `list-topics`, `delete-topic`, `describe-consumer-group`, `list-consumer-groups`, `describe-topic-records`, `dump-topic-records` |
+
+#### Inspecting captured traffic in Apache Kafka
+
+Use `console kafka dump-topic-records` to read the captured traffic records without disturbing the replayer, because it reads with no consumer group and does not commit offsets:
+
+```bash
+console kafka dump-topic-records capture-proxy --mode dump-http
+```
+{% include copy.html %}
+
+`--mode` selects the output: `dump-raw` (the `TrafficStream` records as captured), `dump-http` (reconstructed HTTP messages), or `dump-both`. Scope the read with `--start-offset`/`--end-offset` or `--start-time`/`--end-time` (epoch seconds), and control the helper pod with `--namespace` and `--pod-timeout`.
 
 ### Configuration commands
 
