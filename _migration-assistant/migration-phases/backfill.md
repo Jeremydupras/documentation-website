@@ -161,6 +161,31 @@ The following table describes the RFS settings available for tuning and recovery
 | `initialLeaseDuration` | The ISO-8601 duration each worker holds a shard lease before re-acquisition. | `PT1H` |
 | `allowedDocExceptionTypes` | A list of exception class names from the target's response that are counted as success for that document instead of retried. Use sparingly; a matching error is treated as a successful migration of that document. This setting differs from the Replayer's `nonRetryableDocExceptionTypes`, which treats matching exceptions as deterministic failures that should not be retried. For the replay side, see [Replay captured traffic]({{site.url}}{{site.baseurl}}/migration-assistant/migration-phases/replay-captured-traffic/). | N/A |
 | `allowLooseVersionMatching` | Bypasses the strict source/target version compatibility check. | `true` |
+| `useTargetClusterForWorkCoordination` | *(Expert)* Uses the target cluster for RFS work coordination (lease management and shard assignment) instead of the dedicated single-node coordinator cluster that is otherwise deployed for the migration and torn down on completion. Leave disabled to avoid adding coordination overhead to the target. | `false` |
+| `resources` | Kubernetes CPU and memory requests and limits for the RFS pods. The capture proxy, replayer, and metadata migration (`metadataMigrationConfig.resources`) pods accept their own `resources` block as well. | Per-component defaults |
+
+## Manually controlling backfill and snapshots
+
+The workflow drives these steps for you, but the `console` CLI can drive the components directly during validation or recovery:
+
+```bash
+console backfill start
+console backfill scale <units>   # set the number of RFS worker pods
+console backfill pause
+console backfill stop
+console backfill status --deep-check
+console backfill describe
+```
+{% include copy.html %}
+
+`console backfill scale <units>` adjusts RFS parallelism at runtime and complements the `podReplicas` setting in the preceding table.
+
+When creating a snapshot manually against a live source cluster, limit the read load with `--max-snapshot-rate-mb-per-node` (in MB/s per node):
+
+```bash
+console snapshot create --max-snapshot-rate-mb-per-node 40
+```
+{% include copy.html %}
 
 ## Validate after backfill
 
