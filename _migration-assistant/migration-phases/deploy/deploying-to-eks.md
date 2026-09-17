@@ -269,6 +269,39 @@ If CloudFormation succeeded but the Helm portion failed, rerun only the bootstra
 ```
 {% include copy.html %}
 
+## Alternative: provision with Terraform
+
+The `aws-bootstrap.sh` script provisions the AWS infrastructure through CloudFormation, which is the default and fully supported path. Migration Assistant also ships an additive Terraform module (under `deployment/terraform/aws`) as an alternative for teams that manage AWS infrastructure with Terraform or OpenTofu. The CloudFormation templates remain supported; the Terraform module does not replace them.
+
+By default the module creates a dual-stack VPC across two Availability Zones, the base set of VPC endpoints, an EKS Auto Mode cluster (configuring the chart's own Karpenter node pool when `use_custom_karpenter_node_pool` is enabled), a private ECR repository, the cluster/node/snapshot/workload IAM roles with EKS Pod Identity associations, and---optionally---the Migration Assistant Helm chart.
+
+Prerequisites:
+
+- Terraform or OpenTofu 1.6 or later.
+- AWS credentials authorized to manage VPC, EKS, ECR, IAM, and VPC endpoint resources.
+- AWS CLI and `kubectl` for cluster access after provisioning.
+
+To create a new VPC and cluster, run the following from `deployment/terraform/aws`:
+
+```bash
+terraform init
+terraform plan -var="region=us-east-1" -var="stage=dev"
+terraform apply -var="region=us-east-1" -var="stage=dev"
+
+# Configure kubectl using the command Terraform emits.
+$(terraform output -raw kubeconfig_command)
+kubectl get nodes
+```
+{% include copy.html %}
+
+The module also supports:
+
+- **An existing VPC** --- set `create_vpc = false` with `existing_vpc_id` and `existing_subnet_ids`, and opt in to the VPC endpoints Terraform should add with `vpc_endpoints`.
+- **Isolated (air-gapped) deployment** --- set `isolated = true` to provision a fully private network with no outbound internet path and the full set of AWS service endpoints. This also makes the EKS Kubernetes API endpoint private by default, so `kubectl` (and `terraform apply` when `deploy_helm = true`) must run from inside the VPC or a routed network.
+
+{: .note }
+> EKS Auto Mode must be available in the selected Region and Kubernetes version. `kubernetes_version` defaults to `1.35`; override it if that version is not offered in your Region.
+
 ## Removal
 
 To remove Migration Assistant from EKS, run the following commands:
